@@ -43,7 +43,11 @@ class SamsungTV:
             self.tv_remote = samsungctl.Remote(config)
 
     def power(self):
-        if self._is_connected():
-            self.tv_remote.control("KEY_POWER")
-        else:
-            raise TvNotConnected("TV is Not Connected")
+        try:
+            if self._is_connected():
+                self.tv_remote.control("KEY_POWER")
+            else:
+                raise TvNotConnected("TV is Not Connected")
+        except Exception as err:
+            print("Some error occured")
+            print(err)
