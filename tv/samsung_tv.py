@@ -46,6 +46,7 @@ class SamsungTV:
         try:
             if self._is_connected():
                 self.tv_remote.control("KEY_POWER")
+                self.tv_remote.close()
             else:
                 raise TvNotConnected("TV is Not Connected")
         except Exception as err:
