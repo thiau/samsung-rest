@@ -24,6 +24,11 @@ class SamsungTV:
         # Logging config
         self.log = logging.getLogger('samsung.rest')
         self.log.setLevel(logging.INFO)
+        self.last_action = None
+
+    def _get_action(self, action):
+        actions = {"power": self.power, "volume_up": self.volume_up}
+        return actions.get(action, None)
 
     def _generate_config(self):
         return {
@@ -46,7 +51,19 @@ class SamsungTV:
         if not self._is_connected() or force_connect:
             config = self._generate_config()
             self.tv_remote = None
-            self.tv_remote = samsungctl.Remote(config)
+    def _retry_last_action(self):
+        self.log.info("Will retry last action")
+
+        # Reconnect
+        self.disconnect()
+        self.connect()
+
+        action = self._get_action(action=self.last_action)
+
+        if action is not None:
+            action()
+        else:
+            self.log.info("Last action not found")
 
     def power(self):
         try:
