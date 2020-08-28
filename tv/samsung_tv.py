@@ -50,6 +50,8 @@ class SamsungTV:
     def connect(self, force_connect=False):
         if not self._is_connected() or force_connect:
             config = self._generate_config()
+            self.tv_remote = None  # just making sure
+            self.tv_remote = samsungctl.Remote(config)
             self.tv_remote = None
     def _retry_last_action(self):
         self.log.info("Will retry last action")
@@ -67,22 +69,22 @@ class SamsungTV:
 
     def power(self):
         try:
-            if self._is_connected():
-                self.tv_remote.control("KEY_POWER")
-            else:
-                raise TvNotConnected("TV is Not Connected")
+            self.last_action = "power"
+
+            self.connect()
+            self.tv_remote.control("KEY_POWER")
+            self.disconnect()
         except Exception as err:
-            self.log.info("Some error occured. Will try to reconnect")
-            self.log.info(err)
-            self.connect(force_connect=True)
+            self._log_error_and_reconnect(err)
+            self._retry_last_action()
 
     def volume_up(self):
         try:
-            if self._is_connected():
-                self.tv_remote.control("KEY_VOLUP")
-            else:
-                raise TvNotConnected("TV is Not Connected")
+            self.last_action = "volume_up"
+
+            self.connect()
+            self.tv_remote.control("KEY_VOLUP")
+            self.disconnect()
         except Exception as err:
-            self.log.info("Some error occured. Will try to reconnect")
-            self.log.info(err)
-            self.connect(force_connect=True)
+            self._log_error_and_reconnect(err)
+            self._retry_last_action()
