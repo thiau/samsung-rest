@@ -54,13 +54,15 @@ class SamsungTV:
             self.tv_remote = samsungctl.Remote(config)
 
     def disconnect(self):
-        if self.tv_remote is not None:
+        if self._is_connected():
             self.tv_remote.close()
             self.tv_remote = None
 
     def _log_error_and_reconnect(self, error):
         self.log.info("Some error occured. Will try to reconnect")
         self.log.info(error)
+
+        # Reconnect
         self.disconnect()
         self.connect()
 
