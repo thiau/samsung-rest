@@ -1,9 +1,17 @@
 import samsungctl
+import logging
 from tv.exceptions.tv_exceptions import TvNotConnected
 
 
 class SamsungTV:
     """ Base class for Samsung APIs """
+    """
+    @TODO: Quando fecha a conexao, o websocket fecha, acho
+    que precisar de criar outro objeto
+    ou usar tupo um metodo iterativo onde o websocket nao echa a conecxao
+
+    Log intead of print
+    """
 
     def __init__(self,
                  name,
@@ -19,6 +27,10 @@ class SamsungTV:
         self.timeout = timeout
         self.description = description
         self.tv_remote = None
+
+        # Logging config
+        self.log = logging.getLogger('samsung.rest')
+        self.log.setLevel(logging.INFO)
 
     def _generate_config(self):
         return {
@@ -37,18 +49,30 @@ class SamsungTV:
         else:
             return False
 
-    def connect(self):
-        if not self._is_connected():
+    def connect(self, force_connect=False):
+        if not self._is_connected() or force_connect:
             config = self._generate_config()
+            self.tv_remote = None
             self.tv_remote = samsungctl.Remote(config)
 
     def power(self):
         try:
             if self._is_connected():
                 self.tv_remote.control("KEY_POWER")
-                self.tv_remote.close()
             else:
                 raise TvNotConnected("TV is Not Connected")
         except Exception as err:
-            print("Some error occured")
-            print(err)
+            self.log.info("Some error occured. Will try to reconnect")
+            self.log.info(err)
+            self.connect(force_connect=True)
+
+    def volume_up(self):
+        try:
+            if self._is_connected():
+                self.tv_remote.control("KEY_VOLUP")
+            else:
+                raise TvNotConnected("TV is Not Connected")
+        except Exception as err:
+            self.log.info("Some error occured. Will try to reconnect")
+            self.log.info(err)
+            self.connect(force_connect=True)
