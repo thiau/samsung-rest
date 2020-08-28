@@ -5,13 +5,6 @@ from tv.exceptions.tv_exceptions import TvNotConnected
 
 class SamsungTV:
     """ Base class for Samsung APIs """
-    """
-    @TODO: Quando fecha a conexao, o websocket fecha, acho
-    que precisar de criar outro objeto
-    ou usar tupo um metodo iterativo onde o websocket nao echa a conecxao
-
-    Log intead of print
-    """
 
     def __init__(self,
                  name,
